@@ -1,10 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { View, StyleSheet, Text, Button, Alert } from 'react-native'
+import { View, StyleSheet, Text, Alert } from 'react-native'
+import { Ionicons } from '@expo/vector-icons'
 
 import NumberContainer from '../components/NumberContainer'
 import Card from '../components/Card'
 import Colors from '../constants/colors'
 import DefaultStyles from '../constants/default-styles'
+import MainButton from '../components/MainButton'
 
 const generateRandomBetween = (min, max, exclude) => {
   min = Math.ceil(min)
@@ -59,22 +61,26 @@ const GameScreen = props => {
 
   return (
     <View style={styles.screen}>
-      <Text style={DefaultStyles.title}>Opponent's Guess</Text>
+      <View style={styles.textContainer}>
+        <Text style={DefaultStyles.title}>Opponent's Guess</Text>
+      </View>
       <NumberContainer>{currentGuess}</NumberContainer>
       <Card style={styles.buttonContainer}>
-        <View style={styles.button}>
-          <Button
-            title='LOWER'
+        <View>
+          <MainButton
+            style={{ ...styles.secondaryButton, ...styles.button }}
             onPress={nextGuessHandler.bind(this, 'lower')}
-            color={Colors.secondary}
-          />
+          >
+            <Ionicons name='arrow-down' size={24} color='white' />
+          </MainButton>
         </View>
-        <View style={styles.button}>
-          <Button
-            title='GREATER'
+        <View>
+          <MainButton
+            style={styles.button}
             onPress={nextGuessHandler.bind(this, 'greater')}
-            color={Colors.primary}
-          />
+          >
+            <Ionicons name='arrow-up' size={24} color='white' />
+          </MainButton>
         </View>
       </Card>
     </View>
@@ -90,12 +96,19 @@ const styles = StyleSheet.create({
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 20
+    marginTop: 20,
+    width: 400,
+    maxWidth: '90%'
+  },
+  secondaryButton: {
+    backgroundColor: Colors.secondary
   },
   button: {
-    width: 100,
-    maxWidth: '60%',
-    marginHorizontal: 5
+    width: 160,
+    maxWidth: '90%'
+  },
+  textContainer: {
+    marginBottom: 10
   }
 })
 
