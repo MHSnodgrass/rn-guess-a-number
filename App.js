@@ -18,7 +18,7 @@ const fetchFonts = () => {
 
 export default function App () {
   const [userNumber, setUserNumber] = useState()
-  const [guessRounds, setGuessRounds] = useState(0)
+  const [guessArray, setGuessArray] = useState([])
   const [dataLoaded, setDataLoaded] = useState(false)
 
   if (!dataLoaded) {
@@ -32,7 +32,7 @@ export default function App () {
   }
 
   const configureNewGameHandler = () => {
-    setGuessRounds(0)
+    setGuessArray([])
     setUserNumber(null)
   }
 
@@ -40,20 +40,20 @@ export default function App () {
     setUserNumber(selectedNumber)
   }
 
-  const gameOverHandler = numOfRounds => {
-    setGuessRounds(numOfRounds)
+  const gameOverHandler = guessArray => {
+    setGuessArray(guessArray)
   }
 
   let content = <StartGameScreen onStartGame={startGameHandler} />
 
-  if (userNumber && guessRounds <= 0) {
+  if (userNumber && guessArray.length <= 0) {
     content = (
       <GameScreen userChoice={userNumber} onGameOver={gameOverHandler} />
     )
-  } else if (guessRounds > 0) {
+  } else if (guessArray.length > 0) {
     content = (
       <GameOverScreen
-        roundsNumber={guessRounds}
+        roundsNumber={guessArray.length}
         userNumber={userNumber}
         onRestart={configureNewGameHandler}
       />

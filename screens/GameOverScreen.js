@@ -1,5 +1,5 @@
 import React from 'react'
-import { View, StyleSheet, Text, Button, Image } from 'react-native'
+import { View, StyleSheet, Text, Image } from 'react-native'
 
 import Colors from '../constants/colors'
 import DefaultStyles from '../constants/default-styles'
