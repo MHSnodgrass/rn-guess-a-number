@@ -12,10 +12,6 @@ const GameOverScreen = props => {
       <View style={styles.imageContainer}>
         <Image
           source={require('../assets/success.png')}
-          // source={{
-          //   uri:
-          //     'https://abrahamswallet.com/wp-content/uploads/2017/12/samuel-ferrara-117219-1180x770.jpg'
-          // }}
           style={styles.image}
           resizeMode='cover'
         />
