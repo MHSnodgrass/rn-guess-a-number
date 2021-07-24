@@ -3,9 +3,10 @@ import { View, StyleSheet, Text, TouchableOpacity } from 'react-native'
 
 import Colors from '../constants/colors'
 
+//React Native will automatically check which platform the device is running and adjust buttons based on .platform.js notation
 const MainButton = props => {
   return (
-    <TouchableOpacity onPress={props.onPress}>
+    <TouchableOpacity activeOpacity={0.6} onPress={props.onPress}>
       <View style={{ ...styles.button, ...props.style }}>
         <Text style={styles.buttonText}>{props.children}</Text>
       </View>
