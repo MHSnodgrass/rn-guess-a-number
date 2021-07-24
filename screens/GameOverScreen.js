@@ -9,15 +9,18 @@ const GameOverScreen = props => {
   return (
     <View style={styles.screen}>
       <Text style={DefaultStyles.title}>The Game Is Over!</Text>
+      {/* Wrapping the image in a view to control the style (creating a rounded image for example) This is mostly needed for android*/}
       <View style={styles.imageContainer}>
         <Image
           source={require('../assets/success.png')}
+          // Using styles in image controls the actual image itself
           style={styles.image}
           resizeMode='cover'
         />
       </View>
       <View style={styles.textContainer}>
         <Text style={{ ...DefaultStyles.bodyText, ...styles.resultText }}>
+          {/* Using {' '} to force a space between the nested text components */}
           Your phone needed{' '}
           <Text style={styles.highlight}>{props.roundsNumber}</Text> rounds to
           guess the number{' '}
@@ -51,6 +54,7 @@ const styles = StyleSheet.create({
     borderRadius: 200,
     borderWidth: 3,
     borderColor: 'black',
+    //overflow is used to contain the image inside the readius
     overflow: 'hidden'
   },
   highlight: {

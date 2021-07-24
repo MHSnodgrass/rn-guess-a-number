@@ -17,10 +17,14 @@ import NumberContainer from '../components/NumberContainer'
 import MainButton from '../components/MainButton'
 
 const StartGameScreen = props => {
+  // Used to keep track of number being entered
   const [enteredValue, setEnteredValue] = useState('')
+  // Used to track if the number was validated and locked in
   const [confirmed, setConfirmed] = useState(false)
+  // Keeps track of the number that was locked in / chosen
   const [selectedNumber, setSelectedNumber] = useState()
 
+  // Makes it so the user cannot enter a non-numeric value (characters, ',', etc)
   const numberInputHandler = inputText => {
     if (inputText.match(/[^0-9]/g)) {
       return
@@ -28,11 +32,19 @@ const StartGameScreen = props => {
     setEnteredValue(inputText)
   }
 
+  // Used to reset the input text field and close selection/start game component
   const resetInputHandler = () => {
     setEnteredValue('')
     setConfirmed(false)
   }
 
+  /*
+   * Checks to make sure the number is in fact a number
+   * Makes sure the number falls in within business rules (between 1 and 99)
+   * Alerts user if any of these checks fail
+   * Sets confirmed to true to show selection/start game component and tracks the selectedNumber to pass back to App.js
+   * Resets input field and dismisses the keyboard
+   */
   const confirmInputHandler = () => {
     const chosenNumber = parseInt(enteredValue)
     if (isNaN(chosenNumber) || chosenNumber <= 0 || chosenNumber > 99) {
@@ -49,10 +61,17 @@ const StartGameScreen = props => {
     Keyboard.dismiss()
   }
 
+  // Using confirmedOutput to either show or not show the selection/start game component
   let confirmedOutput
 
+  // Selection/Game start component, shows only if the user has succesfully selected a number
   if (confirmed) {
     confirmedOutput = (
+      /*
+       * Card is a presentational component with predetermined styles, styles can be overloaded, accepts all children via props
+       * NumberContainer is a presentation component with predetermined styles, accepts all children via props
+       * MainButton is a custom component to replace a button using TouchableOpacity. Takes in onPress via props, text as props.children, and has a predetermined style. Styles can be overloaded.
+       */
       <Card style={styles.summaryContainer}>
         <Text style={DefaultStyles.bodyText}>You Selected</Text>
         <NumberContainer>{selectedNumber}</NumberContainer>
@@ -64,17 +83,21 @@ const StartGameScreen = props => {
   }
 
   return (
+    // Allows the user to click any blank space on the screen and dismiss their keyboard (useful for IOS especially)
     <TouchableWithoutFeedback
       onPress={() => {
         Keyboard.dismiss()
       }}
     >
       <View style={styles.screen}>
+        {/* Overloading with DefaultStyles */}
         <Text style={{ ...styles.title, ...DefaultStyles.title }}>
           Start A New Game!
         </Text>
         <Card style={styles.inputContainer}>
           <Text style={DefaultStyles.bodyText}>Select A Number</Text>
+          {/* Input is a presentation component with basic styles, can be passed more styles */}
+          {/* Takes in all props via ...props, uses TextInput */}
           <Input
             style={styles.input}
             blurOnSubmit
@@ -104,6 +127,7 @@ const StartGameScreen = props => {
             </View>
           </View>
         </Card>
+        {/* If a number has been selected, this will show */}
         {confirmedOutput}
       </View>
     </TouchableWithoutFeedback>
@@ -111,9 +135,12 @@ const StartGameScreen = props => {
 }
 
 const styles = StyleSheet.create({
+  // Flexbox is used by default, uses column instead of row
   screen: {
+    // Flex: 1 will take all available space in it's main axis (top to bottom) since no other flex has been declared
     flex: 1,
     padding: 10,
+    // alignItems will center items along the cross-axis (left to right)
     alignItems: 'center'
   },
   title: {
@@ -127,8 +154,10 @@ const styles = StyleSheet.create({
     alignItems: 'center'
   },
   buttonContainer: {
+    // Changing default flex to row (left to right)
     flexDirection: 'row',
     width: '100%',
+    // Providing space between items along main axis (row in this case)
     justifyContent: 'space-between',
     paddingHorizontal: 15
   },
