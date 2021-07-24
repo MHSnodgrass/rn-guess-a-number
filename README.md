@@ -1,6 +1,6 @@
 ﻿# Guess A Number App
- - First React-Native app I created with Expo following the course `React Native - The Practical Guide [2021 Edition]` on Udemy by Maximilian Schwarzmüller.
- - The course was done step by step, with opportunities to pause and tinker with styles and custom components on your own.
+ - First React-Native app I created with Expo following the course `React Native - The Practical Guide [2021 Edition]` on Udemy by Maximilian Schwarzmüller
+ - The course was done step by step, with opportunities to pause and tinker with styles and custom components on your own
  - The first step was to build all of the required components, then I commented the code to make sure I understood what I wrote
  - The second step was to add more support for smaller screens using the `Dimensions` API
  - The third step was to add orientation support with config files and managing `Dimensions` with state where applicable
