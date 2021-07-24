@@ -1,5 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { View, StyleSheet, Text, Alert, FlatList } from 'react-native'
+import {
+  View,
+  StyleSheet,
+  Text,
+  Alert,
+  FlatList,
+  Dimensions
+} from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 
 import NumberContainer from '../components/NumberContainer'
@@ -147,8 +154,9 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 20,
+    justifyContent: 'center',
+    // Checking the height of the screen to decide how far apart components should be
+    marginTop: Dimensions.get('window').height > 600 ? 20 : 5,
     width: 400,
     maxWidth: '90%'
   },
@@ -156,11 +164,13 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.secondary
   },
   button: {
-    width: 160,
-    maxWidth: '90%'
+    // Checking the width of the device to get button wdith
+    width: Dimensions.get('window').width / 4,
+    marginHorizontal: 10
   },
   textContainer: {
-    marginBottom: 10
+    // Checking the height of the screen to decide how far apart components should be
+    marginBottom: Dimensions.get('window').height > 600 ? 20 : 5
   },
   listItem: {
     borderColor: '#ccc',
@@ -174,7 +184,8 @@ const styles = StyleSheet.create({
   },
   // The list container is set to flex: 1 to take all available space
   listContainer: {
-    width: '60%',
+    // Make list items larger on smaller screens
+    width: Dimensions.get('window').width > 350 ? '60%' : '80%',
     flex: 1
   },
   // The list itself uses flexGrow instead of flex to dictate how space within the contain should be distributed among it's children
