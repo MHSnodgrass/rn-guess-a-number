@@ -21,7 +21,7 @@ const generateRandomBetween = (min, max, exclude) => {
   max = Math.floor(max)
   const rndNum = Math.floor(Math.random() * (max - min)) + min
   // Ex 0.4 * (99 - 1) + 1 = 40.2 = 40.0 (floor)
-  // Making it so the program doesn't guess on the first try
+  // Making it so the program doesn't guess correctly on the first try
   if (rndNum === exclude) {
     return generateRandomBetween(min, max, exclude)
   } else {
@@ -45,6 +45,14 @@ const GameScreen = props => {
   const [currentGuess, setCurrentGuess] = useState(initialGuess)
   // Stores an array of all past guesses, starts with the initial
   const [pastGuesses, setPastGuesses] = useState([initialGuess])
+  // Tracks device width and height for styles (orientation)
+  const [availableDeviceWidth, setAvailableDeviceWidth] = useState(
+    Dimensions.get('window').width
+  )
+  const [availableDeviceHeight, setAvailableDeviceHeight] = useState(
+    Dimensions.get('window').height
+  )
+
   /*
    * useRef stores a value as passes it as a refernce
    * Value stays consistent through rerenders, but can be updated
@@ -66,6 +74,20 @@ const GameScreen = props => {
       onGameOver(pastGuesses)
     }
   }, [currentGuess, userChoice, onGameOver])
+
+  // Check for layout change on rerender
+  useEffect(() => {
+    const updateLayout = () => {
+      setAvailableDeviceWidth(Dimensions.get('window').width)
+      setAvailableDeviceHeight(Dimensions.get('window').height)
+    }
+
+    Dimensions.addEventListener('change', updateLayout)
+    //Clean up function, runs before useEffect fires
+    return () => {
+      Dimensions.removeEventListener('change', updateLayout)
+    }
+  })
 
   const nextGuessHandler = direction => {
     /*
@@ -101,16 +123,63 @@ const GameScreen = props => {
     setPastGuesses(currentPastGuesses => [nextNumber, ...currentPastGuesses])
   }
 
+  // Check window height to create a different layout (useful for landscape orientation)
+  if (availableDeviceHeight < 500) {
+    return (
+      <View style={styles.screen}>
+        <View style={{ marginBottom: availableDeviceHeight > 600 ? 20 : 5 }}>
+          <Text style={DefaultStyles.title}>Opponent's Guess</Text>
+        </View>
+        <View style={styles.controls}>
+          <View>
+            <MainButton
+              style={{
+                backgroundColor: Colors.secondary,
+                width: availableDeviceWidth / 4
+              }}
+              onPress={nextGuessHandler.bind(this, 'lower')}
+            >
+              <Ionicons name='arrow-down' size={24} color='white' />
+            </MainButton>
+          </View>
+          <NumberContainer>{currentGuess}</NumberContainer>
+          <View>
+            <MainButton
+              style={{ width: availableDeviceWidth / 4 }}
+              onPress={nextGuessHandler.bind(this, 'greater')}
+            >
+              <Ionicons name='arrow-up' size={24} color='white' />
+            </MainButton>
+          </View>
+        </View>
+        {/* The list container is set to flex: 1 to take all available space */}
+        <View
+          style={{ width: availableDeviceWidth > 350 ? '60%' : '80%', flex: 1 }}
+        >
+          <FlatList
+            keyExtractor={item => item.toString()}
+            data={pastGuesses}
+            renderItem={renderListItem.bind(this, pastGuesses.length)}
+            contentContainerStyle={styles.list}
+          />
+        </View>
+      </View>
+    )
+  }
   return (
     <View style={styles.screen}>
-      <View style={styles.textContainer}>
+      <View style={{ marginBottom: availableDeviceHeight > 600 ? 20 : 5 }}>
         <Text style={DefaultStyles.title}>Opponent's Guess</Text>
       </View>
       <NumberContainer>{currentGuess}</NumberContainer>
       <Card style={styles.buttonContainer}>
         <View>
           <MainButton
-            style={{ ...styles.secondaryButton, ...styles.button }}
+            style={{
+              width: availableDeviceWidth / 4,
+              marginHorizontal: 10,
+              backgroundColor: Colors.secondary
+            }}
             // binds the values to be passed to the function that is passed to the MainButton component
             onPress={nextGuessHandler.bind(this, 'lower')}
           >
@@ -119,7 +188,7 @@ const GameScreen = props => {
         </View>
         <View>
           <MainButton
-            style={styles.button}
+            style={{ width: availableDeviceWidth / 4, marginHorizontal: 10 }}
             onPress={nextGuessHandler.bind(this, 'greater')}
           >
             <Ionicons name='arrow-up' size={24} color='white' />
@@ -134,7 +203,10 @@ const GameScreen = props => {
        * The length of the array is sent as the first argument (via bind)
        * contentContainerStyle helps style the inner container of content inside the FlatList view
        */}
-      <View style={styles.listContainer}>
+      {/* The list container is set to flex: 1 to take all available space */}
+      <View
+        style={{ width: availableDeviceWidth > 350 ? '60%' : '80%', flex: 1 }}
+      >
         <FlatList
           keyExtractor={item => item.toString()}
           data={pastGuesses}
@@ -155,22 +227,14 @@ const styles = StyleSheet.create({
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    // Checking the height of the screen to decide how far apart components should be
-    marginTop: Dimensions.get('window').height > 600 ? 20 : 5,
     width: 400,
     maxWidth: '90%'
   },
-  secondaryButton: {
-    backgroundColor: Colors.secondary
-  },
-  button: {
-    // Checking the width of the device to get button wdith
-    width: Dimensions.get('window').width / 4,
-    marginHorizontal: 10
-  },
-  textContainer: {
-    // Checking the height of the screen to decide how far apart components should be
-    marginBottom: Dimensions.get('window').height > 600 ? 20 : 5
+  controls: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    width: '80%'
   },
   listItem: {
     borderColor: '#ccc',
@@ -181,12 +245,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     width: '100%'
-  },
-  // The list container is set to flex: 1 to take all available space
-  listContainer: {
-    // Make list items larger on smaller screens
-    width: Dimensions.get('window').width > 350 ? '60%' : '80%',
-    flex: 1
   },
   // The list itself uses flexGrow instead of flex to dictate how space within the contain should be distributed among it's children
   list: {

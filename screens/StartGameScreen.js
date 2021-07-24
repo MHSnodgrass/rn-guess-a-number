@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
   View,
   StyleSheet,
@@ -7,7 +7,9 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
   Alert,
-  Dimensions
+  Dimensions,
+  ScrollView,
+  KeyboardAvoidingView
 } from 'react-native'
 
 import Card from '../components/Card'
@@ -24,6 +26,10 @@ const StartGameScreen = props => {
   const [confirmed, setConfirmed] = useState(false)
   // Keeps track of the number that was locked in / chosen
   const [selectedNumber, setSelectedNumber] = useState()
+  // Keeps track of device width to set button width (fixes issues on orientation changes)
+  const [buttonWidth, setButtonWidth] = useState(
+    Dimensions.get('window').width / 4
+  )
 
   // Makes it so the user cannot enter a non-numeric value (characters, ',', etc)
   const numberInputHandler = inputText => {
@@ -38,6 +44,18 @@ const StartGameScreen = props => {
     setEnteredValue('')
     setConfirmed(false)
   }
+
+  useEffect(() => {
+    const updateLayout = () => {
+      setButtonWidth(Dimensions.get('window').width / 4)
+    }
+
+    Dimensions.addEventListener('change', updateLayout)
+    // Cleanup function, will run before useEffect fires. Used to clean up old listener (only 1 listener active)
+    return () => {
+      Dimensions.removeEventListener('change', updateLayout)
+    }
+  })
 
   /*
    * Checks to make sure the number is in fact a number
@@ -84,54 +102,60 @@ const StartGameScreen = props => {
   }
 
   return (
-    // Allows the user to click any blank space on the screen and dismiss their keyboard (useful for IOS especially)
-    <TouchableWithoutFeedback
-      onPress={() => {
-        Keyboard.dismiss()
-      }}
-    >
-      <View style={styles.screen}>
-        {/* Overloading with DefaultStyles */}
-        <Text style={{ ...styles.title, ...DefaultStyles.title }}>
-          Start A New Game!
-        </Text>
-        <Card style={styles.inputContainer}>
-          <Text style={DefaultStyles.bodyText}>Select A Number</Text>
-          {/* Input is a presentation component with basic styles, can be passed more styles */}
-          {/* Takes in all props via ...props, uses TextInput */}
-          <Input
-            style={styles.input}
-            blurOnSubmit
-            autoCapitalize='none'
-            autoCorrect={false}
-            keyboardType='number-pad'
-            maxLength={2}
-            onChangeText={numberInputHandler}
-            value={enteredValue}
-          />
-          <View style={styles.buttonContainer}>
-            <View style={styles.button}>
-              <Button
-                title='Reset'
-                onPress={() => {}}
-                color={Colors.secondary}
-                onPress={resetInputHandler}
+    <ScrollView>
+      {/* KeyboardAvoidingView is used for IOS to avoid the keyboard from blocking inputs */}
+      <KeyboardAvoidingView behavior='position' keyboardVerticalOffset={30}>
+        {/*Allows the user to click any blank space on the screen and dismiss
+      their keyboard (useful for IOS especially)*/}
+        <TouchableWithoutFeedback
+          onPress={() => {
+            Keyboard.dismiss()
+          }}
+        >
+          <View style={styles.screen}>
+            {/* Overloading with DefaultStyles */}
+            <Text style={{ ...styles.title, ...DefaultStyles.title }}>
+              Start A New Game!
+            </Text>
+            <Card style={styles.inputContainer}>
+              <Text style={DefaultStyles.bodyText}>Select A Number</Text>
+              {/* Input is a presentation component with basic styles, can be passed more styles */}
+              {/* Takes in all props via ...props, uses TextInput */}
+              <Input
+                style={styles.input}
+                blurOnSubmit
+                autoCapitalize='none'
+                autoCorrect={false}
+                keyboardType='number-pad'
+                maxLength={2}
+                onChangeText={numberInputHandler}
+                value={enteredValue}
               />
-            </View>
-            <View style={styles.button}>
-              <Button
-                title='Confirm'
-                onPress={() => {}}
-                color={Colors.primary}
-                onPress={confirmInputHandler}
-              />
-            </View>
+              <View style={styles.buttonContainer}>
+                <View style={{ width: buttonWidth }}>
+                  <Button
+                    title='Reset'
+                    onPress={() => {}}
+                    color={Colors.secondary}
+                    onPress={resetInputHandler}
+                  />
+                </View>
+                <View style={{ width: buttonWidth }}>
+                  <Button
+                    title='Confirm'
+                    onPress={() => {}}
+                    color={Colors.primary}
+                    onPress={confirmInputHandler}
+                  />
+                </View>
+              </View>
+            </Card>
+            {/* If a number has been selected, this will show */}
+            {confirmedOutput}
           </View>
-        </Card>
-        {/* If a number has been selected, this will show */}
-        {confirmedOutput}
-      </View>
-    </TouchableWithoutFeedback>
+        </TouchableWithoutFeedback>
+      </KeyboardAvoidingView>
+    </ScrollView>
   )
 }
 
@@ -163,11 +187,6 @@ const styles = StyleSheet.create({
     // Providing space between items along main axis (row in this case)
     justifyContent: 'space-between',
     paddingHorizontal: 15
-  },
-  button: {
-    // Checking the width of the device and dividing by 4 to give width to the buttons for any screen
-    width: Dimensions.get('window').width / 4,
-    maxWidth: '60%'
   },
   input: {
     width: 50,

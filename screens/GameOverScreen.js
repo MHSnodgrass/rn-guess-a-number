@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import {
   View,
   StyleSheet,
@@ -13,12 +13,44 @@ import DefaultStyles from '../constants/default-styles'
 import MainButton from '../components/MainButton'
 
 const GameOverScreen = props => {
+  const [availableDeviceWidth, setAvailableDeviceWidth] = useState(
+    Dimensions.get('window').width
+  )
+  const [availableDeviceHeight, setAvailableDeviceHeight] = useState(
+    Dimensions.get('window').height
+  )
+
+  // Check for layout change on rerender
+  useEffect(() => {
+    const updateLayout = () => {
+      setAvailableDeviceWidth(Dimensions.get('window').width)
+      setAvailableDeviceHeight(Dimensions.get('window').height)
+    }
+
+    Dimensions.addEventListener('change', updateLayout)
+    //Clean up function, runs before useEffect fires
+    return () => {
+      Dimensions.removeEventListener('change', updateLayout)
+    }
+  })
+
   return (
-    <ScrollView contentContainerStyle={styles.screen}>
+    // Using ScrollView to handle devices smaller than what is supported
+    <ScrollView contentContainerStyle={styles.scroll}>
       <View style={styles.screen}>
         <Text style={DefaultStyles.title}>The Game Is Over!</Text>
         {/* Wrapping the image in a view to control the style (creating a rounded image for example) This is mostly needed for android*/}
-        <View style={styles.imageContainer}>
+        <View
+          style={[
+            { ...styles.imageContainer },
+            {
+              marginVertical: availableDeviceHeight / 30,
+              width: availableDeviceWidth * 0.7,
+              height: availableDeviceWidth * 0.7,
+              borderRadius: (availableDeviceWidth * 0.7) / 2
+            }
+          ]}
+        >
           <Image
             source={require('../assets/success.png')}
             // Using styles in image controls the actual image itself
@@ -26,8 +58,21 @@ const GameOverScreen = props => {
             resizeMode='cover'
           />
         </View>
-        <View style={styles.textContainer}>
-          <Text style={{ ...DefaultStyles.bodyText, ...styles.resultText }}>
+        <View
+          style={{
+            marginHorizontal: 50,
+            marginVertical: availableDeviceHeight / 60
+          }}
+        >
+          <Text
+            style={[
+              { ...DefaultStyles.bodyText },
+              {
+                textAlign: 'center',
+                fontSize: availableDeviceHeight < 600 ? 12 : 20
+              }
+            ]}
+          >
             {/* Using {' '} to force a space between the nested text components */}
             Your phone needed{' '}
             <Text style={styles.highlight}>{props.roundsNumber}</Text> rounds to
@@ -44,10 +89,14 @@ const GameOverScreen = props => {
 }
 
 const styles = StyleSheet.create({
+  scroll: {
+    flexGrow: 1
+  },
   screen: {
     flex: 1,
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
+    padding: 10
   },
   image: {
     width: '100%',
@@ -57,10 +106,6 @@ const styles = StyleSheet.create({
     marginTop: 20
   },
   imageContainer: {
-    marginVertical: Dimensions.get('window').height / 30,
-    width: Dimensions.get('window').width * 0.7,
-    height: Dimensions.get('window').width * 0.7,
-    borderRadius: (Dimensions.get('window').width * 0.7) / 2,
     borderWidth: 3,
     borderColor: 'black',
     //overflow is used to contain the image inside the readius
@@ -69,14 +114,6 @@ const styles = StyleSheet.create({
   highlight: {
     color: Colors.secondary,
     fontFamily: 'open-sans-bold'
-  },
-  textContainer: {
-    marginHorizontal: 50,
-    marginVertical: Dimensions.get('window').height / 60
-  },
-  resultText: {
-    textAlign: 'center',
-    fontSize: Dimensions.get('window').height < 600 ? 16 : 20
   }
 })
 
